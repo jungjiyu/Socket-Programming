@@ -69,7 +69,7 @@ class MemberChatRoomTest {
 
         //List<Object[]> byTwoMemberGroup = repository.findByTwoMemberGroup(member1, member2);
         //byTwoMemberGroup.forEach(v-> System.out.println("v = " + v));
-        Long roomNumber12 = repository.findOne2OneRoomNumber(member1.getId(),member2.getId());
+        Long roomNumber12 = repository.findOne2OneRoomNumber(member1.getId(),member2.getId()).orElseThrow();
         System.out.println("roomNumber = " + roomNumber12);
 
         //Long roomNumber23 = repository.findOne2OneRoomNumber(member2.getId(), member3.getId());
