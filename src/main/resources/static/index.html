@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Echo WebSocket Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        #log {
+          border: 1px solid #ccc;
+          height: 200px;
+          width: 400px;
+          overflow-y: auto;
+          padding: 10px;
+          margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<h2>Echo WebSocket Test</h2>
+
+<label>Username: <input type="text" id="username" placeholder="사용자 이름 입력" /></label><br><br>
+<label>Option (1:일반, 2:대문자, 3:소문자, 4:종료): <input type="number" id="option" min="1" max="4" /></label><br><br>
+<label>Message: <input type="text" id="message" placeholder="메시지를 입력하세요" /></label><br><br>
+
+<button onclick="connect()">Connect</button>
+<button onclick="disconnect()">Disconnect</button>
+<button onclick="sendEcho()">Send Echo</button>
+
+<div id="log"></div>
+
+<script>
+    let stompClient = null;
+    let username = null;
+
+    function connect() {
+      username = document.getElementById("username").value;
+      if (!username) {
+        alert("사용자 이름을 입력하세요.");
+        return;
+      }
+
+      const socket = new WebSocket("ws://localhost:8788/ws");
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({ memberId: username }, (frame) => {
+        log("Connected: " + frame);
+
+        // 응답 메시지 구독
+        stompClient.subscribe(`/sub/echo/${username}`, (message) => {
+          const body = JSON.parse(message.body);
+          log(`[${body.username}] Echo result: ${body.message}`);
+        });
+
+        // 에러 메시지 구독
+        stompClient.subscribe(`/sub/error/${username}`, (message) => {
+          const error = JSON.parse(message.body);
+          log(`Error (${error.status}): ${error.error}`);
+        });
+
+      }, (error) => {
+        log("연결 오류: " + error);
+      });
+    }
+
+    function disconnect() {
+      if (stompClient) {
+        stompClient.disconnect(() => log("Disconnected."));
+      }
+    }
+
+    function sendEcho() {
+      const option = parseInt(document.getElementById("option").value);
+      const message = document.getElementById("message").value;
+
+      log(`요청 전송 - 옵션: ${option}, 메시지: ${message}`);
+
+      if (option === 4) {
+        log("종료 요청됨. 연결 해제합니다.");
+        disconnect();
+        return;
+      }
+
+      stompClient.send("/pub/echo", {}, JSON.stringify({
+        username: username,
+        option: option,
+        message: message
+      }));
+    }
+
+    function log(msg) {
+      const logDiv = document.getElementById("log");
+      logDiv.innerHTML += `<p>${msg}</p>`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+</script>
+</body>
+</html>
