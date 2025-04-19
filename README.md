@@ -61,6 +61,15 @@ TCP 기반 Echo 통신 시스템을 WebSocket + STOMP 구조로 구현하였다.
 3. 처리된 결과가 하단 로그 영역에 출력
 4. 옵션 4 입력 시 연결 해제
 
+### 4-3. ⚠️ 주의 사항
+
+GitHub 리포지토리에는 보안상의 이유로 다음 파일들이 포함되어 있지 않음:
+
+- private-key.pem, public-key.pem (JWT 인증에 사용)
+- firebase-service-key.json (FCM 연동용)
+
+정상적인 동작을 위해 위 파일들을 프로젝트 루트 또는 지정된 경로에 수동으로 추가해야 함
+
 ## 5. 실행 화면 
 ![image](https://github.com/user-attachments/assets/c1d64750-f88d-44b4-b97e-6979e27ed9c8)
 
